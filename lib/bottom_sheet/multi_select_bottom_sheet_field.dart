@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
-import '../util/multi_select_list_type.dart';
+
 import '../chip_display/multi_select_chip_display.dart';
 import '../util/multi_select_item.dart';
+import '../util/multi_select_list_type.dart';
 import 'multi_select_bottom_sheet.dart';
 
 /// A customizable InkWell widget that opens the MultiSelectBottomSheet
@@ -10,6 +11,12 @@ import 'multi_select_bottom_sheet.dart';
 class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
   /// Style the Container that makes up the field.
   final BoxDecoration? decoration;
+
+  /// Set the height of the field.
+  final double? height;
+
+  /// Set the width of the field.
+  final double? width;
 
   /// Set text that is displayed on the button.
   final Text? buttonText;
@@ -100,11 +107,21 @@ class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
   /// Style the search hint.
   final TextStyle? searchHintStyle;
 
+  /// Hide or show the selected item chips
+  final bool showSelectedItems;
+
+  /// Add customization before the showModalBottomSheet is called.
+  final Function? onTap;
+
   /// Set the color of the check in the checkbox
   final Color? checkColor;
 
   /// Whether the user can dismiss the widget by tapping outside
   final bool isDismissible;
+
+  final TextStyle? errorStyle;
+
+  final EdgeInsetsGeometry? errorTextPadding;
 
   final AutovalidateMode autovalidateMode;
   final FormFieldValidator<List<V>>? validator;
@@ -120,6 +137,8 @@ class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
     this.buttonIcon,
     this.listType,
     this.decoration,
+    this.height,
+    this.width,
     this.onSelectionChanged,
     this.chipDisplay,
     this.initialValue = const [],
@@ -141,12 +160,16 @@ class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
     this.itemsTextStyle,
     this.searchTextStyle,
     this.searchHintStyle,
+    this.showSelectedItems = true,
+    this.onTap,
     this.selectedItemsTextStyle,
     this.separateSelectedItems = false,
     this.checkColor,
     this.isDismissible = true,
     this.key,
     this.onSaved,
+    this.errorStyle,
+    this.errorTextPadding,
     this.validator,
     this.autovalidateMode = AutovalidateMode.disabled,
   }) : super(
@@ -156,10 +179,11 @@ class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
             autovalidateMode: autovalidateMode,
             initialValue: initialValue,
             builder: (FormFieldState<List<V>> state) {
-              _MultiSelectBottomSheetFieldView view =
-                  _MultiSelectBottomSheetFieldView<V>(
+              _MultiSelectBottomSheetFieldView view = _MultiSelectBottomSheetFieldView<V>(
                 items: items,
                 decoration: decoration,
+                height: height,
+                width: width,
                 unselectedColor: unselectedColor,
                 colorator: colorator,
                 itemsTextStyle: itemsTextStyle,
@@ -189,16 +213,21 @@ class MultiSelectBottomSheetField<V> extends FormField<List<V>> {
                 separateSelectedItems: separateSelectedItems,
                 shape: shape,
                 checkColor: checkColor,
+                showSelectedItems: showSelectedItems,
+                onTap: onTap,
+                errorStyle: errorStyle,
+                errorTextPadding: errorTextPadding,
                 isDismissible: isDismissible,
               );
-              return _MultiSelectBottomSheetFieldView<V?>._withState(
-                  view as _MultiSelectBottomSheetFieldView<V?>, state);
+              return _MultiSelectBottomSheetFieldView<V?>._withState(view as _MultiSelectBottomSheetFieldView<V?>, state);
             });
 }
 
 // ignore: must_be_immutable
 class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
   final BoxDecoration? decoration;
+  final double? height;
+  final double? width;
   final Text? buttonText;
   final Icon? buttonIcon;
   final List<MultiSelectItem<V>> items;
@@ -227,8 +256,12 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
   final TextStyle? selectedItemsTextStyle;
   final TextStyle? searchTextStyle;
   final TextStyle? searchHintStyle;
+  final bool showSelectedItems;
+  final Function? onTap;
   final bool separateSelectedItems;
   final Color? checkColor;
+  final TextStyle? errorStyle;
+  final EdgeInsetsGeometry? errorTextPadding;
   final bool isDismissible;
   FormFieldState<List<V>>? state;
 
@@ -239,6 +272,8 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
     this.buttonIcon,
     this.listType,
     this.decoration,
+    this.height,
+    this.width,
     this.onSelectionChanged,
     this.onConfirm,
     this.chipDisplay,
@@ -261,6 +296,10 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
     this.itemsTextStyle,
     this.searchTextStyle,
     this.searchHintStyle,
+    this.showSelectedItems = true,
+    this.onTap,
+    this.errorStyle,
+    this.errorTextPadding,
     this.selectedItemsTextStyle,
     required this.separateSelectedItems,
     this.checkColor,
@@ -268,14 +307,15 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
   });
 
   /// This constructor allows a FormFieldState to be passed in. Called by MultiSelectBottomSheetField.
-  _MultiSelectBottomSheetFieldView._withState(
-      _MultiSelectBottomSheetFieldView<V> field, FormFieldState<List<V>> state)
+  _MultiSelectBottomSheetFieldView._withState(_MultiSelectBottomSheetFieldView<V> field, FormFieldState<List<V>> state)
       : items = field.items,
         title = field.title,
         buttonText = field.buttonText,
         buttonIcon = field.buttonIcon,
         listType = field.listType,
         decoration = field.decoration,
+        height = field.height,
+        width = field.width,
         onSelectionChanged = field.onSelectionChanged,
         onConfirm = field.onConfirm,
         chipDisplay = field.chipDisplay,
@@ -298,6 +338,10 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
         itemsTextStyle = field.itemsTextStyle,
         searchHintStyle = field.searchHintStyle,
         searchTextStyle = field.searchTextStyle,
+        showSelectedItems = field.showSelectedItems,
+        errorStyle = field.errorStyle,
+        errorTextPadding = field.errorTextPadding,
+        onTap = field.onTap,
         selectedItemsTextStyle = field.selectedItemsTextStyle,
         separateSelectedItems = field.separateSelectedItems,
         checkColor = field.checkColor,
@@ -305,12 +349,10 @@ class _MultiSelectBottomSheetFieldView<V> extends StatefulWidget {
         state = state;
 
   @override
-  __MultiSelectBottomSheetFieldViewState createState() =>
-      __MultiSelectBottomSheetFieldViewState<V>();
+  __MultiSelectBottomSheetFieldViewState createState() => __MultiSelectBottomSheetFieldViewState<V>();
 }
 
-class __MultiSelectBottomSheetFieldViewState<V>
-    extends State<_MultiSelectBottomSheetFieldView<V>> {
+class __MultiSelectBottomSheetFieldViewState<V> extends State<_MultiSelectBottomSheetFieldView<V>> {
   List<V> _selectedItems = [];
 
   @override
@@ -335,10 +377,7 @@ class __MultiSelectBottomSheetFieldViewState<V>
 
   Widget _buildInheritedChipDisplay() {
     List<MultiSelectItem<V>?> chipDisplayItems = [];
-    chipDisplayItems = _selectedItems
-        .map((e) =>
-            widget.items.firstWhereOrNull((element) => e == element.value))
-        .toList();
+    chipDisplayItems = _selectedItems.map((e) => widget.items.firstWhereOrNull((element) => e == element.value)).toList();
     chipDisplayItems.removeWhere((element) => element == null);
     if (widget.chipDisplay != null) {
       // if user has specified a chipDisplay, use its params
@@ -362,11 +401,7 @@ class __MultiSelectBottomSheetFieldViewState<V>
             }
           },
           decoration: widget.chipDisplay!.decoration,
-          chipColor: widget.chipDisplay!.chipColor ??
-              ((widget.selectedColor != null &&
-                      widget.selectedColor != Colors.transparent)
-                  ? widget.selectedColor!.withOpacity(0.35)
-                  : null),
+          chipColor: widget.chipDisplay!.chipColor ?? ((widget.selectedColor != null && widget.selectedColor != Colors.transparent) ? widget.selectedColor!.withOpacity(0.35) : null),
           alignment: widget.chipDisplay!.alignment,
           textStyle: widget.chipDisplay!.textStyle,
           icon: widget.chipDisplay!.icon,
@@ -382,10 +417,7 @@ class __MultiSelectBottomSheetFieldViewState<V>
       return MultiSelectChipDisplay<V>(
         items: chipDisplayItems,
         colorator: widget.colorator,
-        chipColor: (widget.selectedColor != null &&
-                widget.selectedColor != Colors.transparent)
-            ? widget.selectedColor!.withOpacity(0.35)
-            : null,
+        chipColor: (widget.selectedColor != null && widget.selectedColor != Colors.transparent) ? widget.selectedColor!.withOpacity(0.35) : null,
       );
     }
   }
@@ -436,7 +468,7 @@ class __MultiSelectBottomSheetFieldViewState<V>
           );
         });
     print(myVar.toString());
-    _selectedItems = myVar!;
+    _selectedItems = myVar ?? [];
   }
 
   @override
@@ -446,9 +478,14 @@ class __MultiSelectBottomSheetFieldViewState<V>
       children: <Widget>[
         InkWell(
           onTap: () {
+            if (widget.onTap != null) {
+              widget.onTap!();
+            }
             _showBottomSheet(context);
           },
           child: Container(
+            height: widget.height,
+            width: widget.width,
             decoration: widget.state != null
                 ? widget.decoration ??
                     BoxDecoration(
@@ -457,9 +494,7 @@ class __MultiSelectBottomSheetFieldViewState<V>
                           color: widget.state != null && widget.state!.hasError
                               ? Colors.red.shade800.withOpacity(0.6)
                               : _selectedItems.isNotEmpty
-                                  ? (widget.selectedColor != null &&
-                                          widget.selectedColor !=
-                                              Colors.transparent)
+                                  ? (widget.selectedColor != null && widget.selectedColor != Colors.transparent)
                                       ? widget.selectedColor!
                                       : Theme.of(context).primaryColor
                                   : Colors.black45,
@@ -476,30 +511,32 @@ class __MultiSelectBottomSheetFieldViewState<V>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                widget.buttonText ?? Text("Select"),
-                widget.buttonIcon ?? Icon(Icons.arrow_downward),
+                Expanded(
+                  child: widget.buttonText ?? Text("Select"),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  alignment: Alignment.center,
+                  child: widget.buttonIcon ?? Icon(Icons.arrow_downward),
+                ),
               ],
             ),
           ),
         ),
-        _buildInheritedChipDisplay(),
+        widget.showSelectedItems ? _buildInheritedChipDisplay() : Container(),
+        widget.state != null && widget.state!.hasError ? SizedBox(height: 5) : Container(),
         widget.state != null && widget.state!.hasError
-            ? SizedBox(height: 5)
-            : Container(),
-        widget.state != null && widget.state!.hasError
-            ? Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Text(
-                      widget.state!.errorText!,
-                      style: TextStyle(
+            ? Container(
+                alignment: Alignment.centerLeft,
+                padding: widget.errorTextPadding ?? const EdgeInsets.only(left: 4),
+                child: Text(
+                  widget.state!.errorText!,
+                  style: widget.errorStyle ??
+                      TextStyle(
                         color: Colors.red[800],
                         fontSize: 12.5,
                       ),
-                    ),
-                  ),
-                ],
+                ),
               )
             : Container(),
       ],

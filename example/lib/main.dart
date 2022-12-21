@@ -1,5 +1,5 @@
+import 'package:fd_multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -66,9 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Animal(id: 26, name: "Dragonfly"),
     Animal(id: 27, name: "Dolphin"),
   ];
-  final _items = _animals
-      .map((animal) => MultiSelectItem<Animal>(animal, animal.name))
-      .toList();
+  final _items = _animals.map((animal) => MultiSelectItem<Animal>(animal, animal.name)).toList();
   //List<Animal> _selectedAnimals = [];
   List<Animal> _selectedAnimals2 = [];
   List<Animal> _selectedAnimals3 = [];
@@ -235,8 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 dialogWidth: MediaQuery.of(context).size.width * 0.7,
                 items: _items,
-                initialValue:
-                    _selectedAnimals5, // setting the value of this in initState() to pre-select values.
+                initialValue: _selectedAnimals5, // setting the value of this in initState() to pre-select values.
               ),
             ],
           ),
